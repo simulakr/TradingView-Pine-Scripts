@@ -2,7 +2,7 @@
 
 ## Price/SMA50 Ratio
 
-![Price/SMA50 Ratio](P SMA50 Ratio.PNG)
+![Price/SMA50 Ratio](price_sma50_ratio.png)
 
 ## Stochastic K-D Difference
 
