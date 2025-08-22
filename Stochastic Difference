@@ -1,0 +1,25 @@
+//@version=5
+indicator("Stochastic 50-21-8 K-D Farkı", overlay=false)
+
+// Parametreler
+lengthK = 50
+smoothK = 8
+lengthD = 21
+
+// %K ve %D hesaplama
+kRaw = ta.stoch(close, high, low, lengthK)
+kSmooth = ta.sma(kRaw, smoothK)
+dLine = ta.sma(kSmooth, lengthD)
+
+// Fark hesaplama
+kMinusD = kSmooth - dLine
+
+// Farkı çiz
+plot(kMinusD, title="%K - %D Farkı", color=color.rgb(255, 102, 0), linewidth=1)
+
+// Kesikli mavi kılavuz çizgiler
+hline(20, "10", color=color.rgb(6, 69, 121), linestyle=hline.style_dashed)
+hline(10, "5", color=color.rgb(211, 229, 244), linestyle=hline.style_dashed)
+hline(0, "0", color=color.rgb(155, 157, 157), linestyle=hline.style_dashed)
+hline(-10, "-5", color=color.rgb(224, 237, 247), linestyle=hline.style_dashed)
+hline(-20, "-10", color=color.rgb(5, 61, 106), linestyle=hline.style_dashed)
