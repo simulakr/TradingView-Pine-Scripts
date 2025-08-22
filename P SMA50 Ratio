@@ -1,0 +1,25 @@
+//@version=5
+indicator("Fiyat/SMA50 Oranı", shorttitle="P/SMA50", overlay=false)
+
+// Kullanıcı ayarları
+sma_period = input.int(50, title="SMA Periyodu", minval=1, maxval=200)
+upper_line = input.float(1.05, title="Üst Referans Çizgisi", minval=0.5, maxval=2.0, step=0.01)
+lower_line = input.float(0.95, title="Alt Referans Çizgisi", minval=0.5, maxval=2.0, step=0.01)
+
+// Çizgi stilleri
+upper_line_style = input.string("Kesikli", title="Üst Çizgi Stili", options=["Düz", "Kesikli", "Noktalı"])
+lower_line_style = input.string("Kesikli", title="Alt Çizgi Stili", options=["Düz", "Kesikli", "Noktalı"])
+
+// Renkler
+ratio_color = input.color(color.blue, title="Oran Çizgisi Rengi")
+upper_color = input.color(color.red, title="Üst Çizgi Rengi")
+lower_color = input.color(color.green, title="Alt Çizgi Rengi")
+middle_color = input.color(color.gray, title="Orta Çizgi Rengi")
+
+// Hesaplamalar
+sma_50 = ta.sma(close, sma_period)
+price_sma_ratio = close / sma_50
+
+// Çizgi stilini belirleme fonksiyonu
+get_hline_style(style_name) =>
+    switch style_name
