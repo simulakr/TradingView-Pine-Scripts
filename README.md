@@ -6,7 +6,7 @@
 
 ## Stochastic K-D Difference
 
-![Stochastic K-D Difference](Stochastic Difference.PNG)
+![Stochastic K-D Difference](stochastic_difference.png)
 
 
 
