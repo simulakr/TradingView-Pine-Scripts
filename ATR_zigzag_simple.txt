@@ -1,0 +1,102 @@
+//@version=5
+indicator("ATR Zigzag Simple", overlay=true, max_lines_count=500, max_labels_count=500)
+
+// ===== ATR PANEL =====
+atr_panel = input.bool(true, "Show ATR in Separate Panel")
+
+// ===== INPUTS =====
+atr_length = input.int(14, "ATR Length", minval=1)
+atr_mult = input.float(3.0, "ATR Multiplier", minval=0.1, step=0.1)
+
+// ===== HESAPLAMALAR =====
+atr = ta.atr(atr_length)
+threshold = atr * atr_mult
+
+// Zigzag değişkenleri
+var float last_pivot = close
+var int last_pivot_bar = 0
+var string trend = na
+var float prev_confirmed_price = na
+var int prev_confirmed_bar = na
+var line prev_line = na
+
+// İlk bar
+if bar_index == 0
+    last_pivot := close
+    last_pivot_bar := 0
+    trend := na
+
+// Ana mantık
+if bar_index > 0
+    // Trend henüz belirlenmedi
+    if na(trend)
+        if close >= last_pivot + threshold
+            trend := "up"
+            if not na(prev_confirmed_bar)
+                line.new(prev_confirmed_bar, prev_confirmed_price, last_pivot_bar, last_pivot, xloc=xloc.bar_index, color=color.green, width=2)
+            prev_confirmed_price := last_pivot
+            prev_confirmed_bar := last_pivot_bar
+            label.new(bar_index, close, "▲", style=label.style_none, xloc=xloc.bar_index, color=color.green, textcolor=color.green, size=size.normal)
+            
+        else if close <= last_pivot - threshold
+            trend := "down"
+            if not na(prev_confirmed_bar)
+                line.new(prev_confirmed_bar, prev_confirmed_price, last_pivot_bar, last_pivot, xloc=xloc.bar_index, color=color.red, width=2)
+            prev_confirmed_price := last_pivot
+            prev_confirmed_bar := last_pivot_bar
+            label.new(bar_index, close, "▼", style=label.style_none, xloc=xloc.bar_index, color=color.red, textcolor=color.red, size=size.normal, yloc=yloc.price)
+    
+    // Yükseliş trendinde
+    else if trend == "up"
+        if close <= last_pivot - threshold
+            // Tepe confirmed - kırmızı çizgi çiz
+            line.new(prev_confirmed_bar, prev_confirmed_price, last_pivot_bar, last_pivot, xloc=xloc.bar_index, color=color.red, width=2)
+            prev_confirmed_price := last_pivot
+            prev_confirmed_bar := last_pivot_bar
+            label.new(bar_index, close, "▼", style=label.style_none, xloc=xloc.bar_index, color=color.red, textcolor=color.red, size=size.normal, yloc=yloc.price)
+            
+            // Yeni çizgiyi başlat (dip için)
+            if not na(prev_line)
+                line.delete(prev_line)
+            prev_line := line.new(last_pivot_bar, last_pivot, bar_index, close, xloc=xloc.bar_index, color=color.green, width=2, extend=extend.right)
+            
+            trend := "down"
+            last_pivot := close
+            last_pivot_bar := bar_index
+            
+        else if close > last_pivot
+            last_pivot := close
+            last_pivot_bar := bar_index
+            // Devam eden çizgiyi güncelle
+            if not na(prev_line)
+                line.delete(prev_line)
+            prev_line := line.new(prev_confirmed_bar, prev_confirmed_price, last_pivot_bar, last_pivot, xloc=xloc.bar_index, color=color.green, width=2, extend=extend.right)
+    
+    // Düşüş trendinde
+    else if trend == "down"
+        if close >= last_pivot + threshold
+            // Dip confirmed - yeşil çizgi çiz
+            line.new(prev_confirmed_bar, prev_confirmed_price, last_pivot_bar, last_pivot, xloc=xloc.bar_index, color=color.green, width=2)
+            prev_confirmed_price := last_pivot
+            prev_confirmed_bar := last_pivot_bar
+            label.new(bar_index, close, "▲", style=label.style_none, xloc=xloc.bar_index, color=color.green, textcolor=color.green, size=size.normal)
+            
+            // Yeni çizgiyi başlat (tepe için)
+            if not na(prev_line)
+                line.delete(prev_line)
+            prev_line := line.new(last_pivot_bar, last_pivot, bar_index, close, xloc=xloc.bar_index, color=color.red, width=2, extend=extend.right)
+            
+            trend := "up"
+            last_pivot := close
+            last_pivot_bar := bar_index
+            
+        else if close < last_pivot
+            last_pivot := close
+            last_pivot_bar := bar_index
+            // Devam eden çizgiyi güncelle
+            if not na(prev_line)
+                line.delete(prev_line)
+            prev_line := line.new(prev_confirmed_bar, prev_confirmed_price, last_pivot_bar, last_pivot, xloc=xloc.bar_index, color=color.red, width=2, extend=extend.right)
+
+// ===== ATR GRAFİĞİ (ALTTA) =====
+plot(threshold, "ATR Threshold (3x)", color=color.orange, linewidth=2)
