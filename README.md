@@ -2,7 +2,7 @@
 
 ## ATR Zigzag & Pivot Confirmed Points
 
-![ATR Zigzag](ATR_zigzag.PNG)
+![ATR Zigzag](atr_zigzag.PNG)
 
 ## Price/SMA50 Ratio
 
